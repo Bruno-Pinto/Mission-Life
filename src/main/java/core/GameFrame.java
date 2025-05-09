@@ -1,5 +1,4 @@
-
-import java.awt.Color;
+package core;
 
 import javax.swing.JFrame;
 
@@ -11,7 +10,7 @@ public class GameFrame extends JFrame{
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(false);
-		this.setTitle("Life");
+		this.setTitle("main.Life");
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 		
