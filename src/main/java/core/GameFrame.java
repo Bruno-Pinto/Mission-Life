@@ -1,18 +1,18 @@
 package core;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class GameFrame extends JFrame{
 	
-	GameFrame(){
+	GameFrame(GamePanel gamePanel){
 
-		this.add(Life.panel);
-		this.pack();
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setResizable(false);
-		this.setTitle("main.Life");
-		this.setLocationRelativeTo(null);
-		this.setVisible(true);
+		add(gamePanel);
+		pack();
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		setResizable(false);
+		setTitle("A Game of Life");
+		setLocationRelativeTo(null);
+		setVisible(true);
 		
 	}
 	

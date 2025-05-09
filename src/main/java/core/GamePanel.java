@@ -8,25 +8,26 @@ import java.awt.Graphics2D;
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel{
-
-	GamePanel(int w, int h){
-		 
-		this.setPreferredSize(new Dimension(w, h));
-		
-	}
+	private final Life life;
 	
+	GamePanel(Life life, int w, int h){
+		this.life = life;
+		this.setPreferredSize(new Dimension(w, h));
+	}
+
+	@Override
 	public void paint(Graphics g) {
-		int s = Life.gap - Life.gap/2;
+		int s = life.gap - life.gap/2;
 		Graphics2D g2D = (Graphics2D) g;
-		g2D.setStroke(new BasicStroke(Life.gap));
+		g2D.setStroke(new BasicStroke(life.gap));
 		g2D.setColor(Color.darkGray);
-		for (int i = 1; i<Life.cols; i++) {
+		for (int i = 1; i<life.cols; i++) {
 			
-			g2D.drawLine(i*Life.uSize - s, 0, i*Life.uSize - s, Life.panelHeight);
+			g2D.drawLine(i*life.uSize - s, 0, i*life.uSize - s, life.panelHeight);
 		}
-		for (int i = 1; i<Life.rows; i++) {
+		for (int i = 1; i<life.rows; i++) {
 			
-			g2D.drawLine(0, i*Life.uSize - s, Life.panelWidth, i*Life.uSize - s);
+			g2D.drawLine(0, i*life.uSize - s, life.panelWidth, i*life.uSize - s);
 		}
 	}
 	

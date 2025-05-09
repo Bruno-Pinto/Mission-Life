@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "Mission-Life"
-include("app")
+include("src")
