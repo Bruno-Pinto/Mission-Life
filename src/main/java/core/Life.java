@@ -24,7 +24,6 @@ public class Life {
     static Timer timer = new Timer();
     static long delay = 150;
 
-    //setup the game
     public static void main(String[] args) throws InterruptedException {
 
         grid1 = randomFill(grid1);
