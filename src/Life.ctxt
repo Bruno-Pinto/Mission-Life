@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=Life
+comment1.params=args
+comment1.target=void\ main(java.lang.String[])
+comment10.params=grid
+comment10.target=int[][]\ fillGliderGun(int[][])
+comment11.params=grid
+comment11.target=int[][]\ randomFill(int[][])
+comment2.params=grid
+comment2.target=void\ startGame(int[][])
+comment3.params=
+comment3.target=void\ run()
+comment4.params=gridOld\ gridNew
+comment4.target=void\ run(int[][],\ int[][])
+comment5.params=grid\ i\ j
+comment5.target=int\ neighbours(int[][],\ int,\ int)
+comment6.params=grid\ i\ j
+comment6.target=int\ neighboursBorder(int[][],\ int,\ int)
+comment7.params=grid
+comment7.target=void\ drawFrame(int[][])
+comment8.params=panel\ x\ y\ w
+comment8.target=void\ paintSquare(GamePanel,\ int,\ int,\ int)
+comment9.params=grid
+comment9.target=void\ print(int[][])
+numComments=12
