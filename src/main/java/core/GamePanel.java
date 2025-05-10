@@ -12,38 +12,49 @@ public class GamePanel extends JPanel{
 	private final int panelHeight;
 	private final int cols;
 	private final int rows;
-	private final int uSize;
+	private final int cellSize;
 	private final int gap;
+	private final int uSize;
+	private Graphics2D g2D;
+	private static final Color squareColor = Color.DARK_GRAY;
+	private static final Color gridColor = Color.DARK_GRAY;
+	private static final Color backgroundColor = Color.WHITE;
 	
-	GamePanel(int cols, int rows, int uSize, int gap) {
+	GamePanel(int cols, int rows, int cellWidth, int gap) {
 		this.cols = cols;
 		this.rows = rows;
-		this.uSize = uSize;
 		this.gap = gap;
+		this.cellSize = cellWidth;
+		this.uSize = cellWidth + gap;
 		panelWidth = cols*uSize-gap;
 		panelHeight = rows *uSize-gap;
 		this.setPreferredSize(new Dimension(panelWidth, panelHeight));
 	}
 
+	public void setG2D() {
+		g2D = (Graphics2D) this.getGraphics();
+	}
+
 	@Override
 	public void paint(Graphics g) {
+		Graphics2D graphics2D = (Graphics2D) g;
 		int s = gap - gap/2;
-		Graphics2D g2D = (Graphics2D) g;
-		g2D.setStroke(new BasicStroke(gap));
-		g2D.setColor(Color.darkGray);
+		graphics2D.setStroke(new BasicStroke(gap));
+		graphics2D.setColor(gridColor);
 		for (int i = 1; i<cols; i++) {
-			
-			g2D.drawLine(i*uSize - s, 0, i*uSize - s, panelHeight);
+			graphics2D.drawLine(i*uSize - s, 0, i*uSize - s, panelHeight);
 		}
 		for (int i = 1; i<rows; i++) {
-			
-			g2D.drawLine(0, i*uSize - s, panelWidth, i*uSize - s);
+			graphics2D.drawLine(0, i*uSize - s, panelWidth, i*uSize - s);
 		}
 	}
-	
-	public void paintRect(GamePanel panel, int x, int y, int w) {
-		Graphics g = panel.getGraphics();
-		Graphics2D g2D = (Graphics2D) g;
-		g2D.fillRect(x, y, w, w);
+
+	public void paintSquare( int x, int y, int color) {
+		if (color == 1) {
+			g2D.setColor(squareColor);
+		} else {
+			g2D.setColor(backgroundColor);
+		}
+		g2D.fillRect(x, y, cellSize, cellSize);
 	}
 }

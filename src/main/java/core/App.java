@@ -8,6 +8,5 @@ public class App {
         log.info("Running App in mode: " + System.getProperty("appMode"));
         Life life = new Life();
         life.initialize();
-        life.start();
     }
 }

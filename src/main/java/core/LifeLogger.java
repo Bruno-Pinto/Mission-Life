@@ -64,10 +64,16 @@ public class LifeLogger {
     }
 
     /**
+     * Log very detailed debugging information.
+      * @param message The message to log.
+     */
+    public void finer(String message) { log.finer(message); }
+
+    /**
      * Log detailed debugging information, generally for tracing the application flow.
      * @param message The message to log.
      */
-    public void debug(String message) {
+    public void fine(String message) {
         log.fine(message);
     }
 
