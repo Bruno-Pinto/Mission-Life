@@ -34,10 +34,14 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "core.Life"
+    mainClass = "core.App"
 }
 
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.withType<JavaExec>() {
+    systemProperty("appMode", System.getProperty("appMode"))
 }
