@@ -9,36 +9,39 @@ import java.util.TimerTask;
 
 public class Life {
 
-    public final int rows = 80; // 15x36 for Glider
-    int cols = 120;
-    int w = 16; // width of square
-    int gap = 1; // gap between squares
-    int uSize = w + gap;
-    int panelWidth = cols*uSize-gap;
-    int panelHeight = rows *uSize-gap;
-    GamePanel panel;
-    GameFrame frame;
-    int[][] grid1 = new int[rows][cols];
-    int[][] grid2 = new int[rows][cols];
-    int flip = 0;
-    Timer timer = new Timer();
-    long delay = 100;
-    Random random = new Random();
+    private final int rows = 40; // 15x36 for Glider
+    private final int cols = 60;
+    private final int cellWidth = 16; // width of square
+    private final int gap = 1; // gap between squares
+    private final int uSize = cellWidth + gap;
+    private final GamePanel panel;
+    private final GameFrame frame;
+    private int[][] grid1 = new int[rows][cols];
+    private int[][] grid2 = new int[rows][cols];
+    private int flip = 0;
+    private final long delay = 100;
+    private static final boolean FILL_GUN = true;
+    private static final Timer timer = new Timer();
+    private static final Random random = new Random();
 
     public Life() {
-        panel = new GamePanel(this, panelWidth, panelHeight);
+        panel = new GamePanel(cols, rows, uSize, gap);
         frame = new GameFrame(panel);
     }
 
-    public void start() throws Exception {
+    public void start() {
+        frame.setVisible(true);
+        if (FILL_GUN) {
+            fillGliderGun(grid1);
+        } else {
+            randomFill(grid1);
+        }
 
-        grid1 = randomFill(grid1);
-//		grid1 = fillGliderGun(grid1);
-
-//		print(grid1);
-//		System.out.println(panelWidth + " " + panelHeight);
-
-        Thread.sleep(10);
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace(System.err);
+        }
 
         startGame(grid1);
     }
@@ -48,7 +51,7 @@ public class Life {
         for (int i = 0; i< rows; i++) {
             for (int j=0; j<cols; j++) {
                 if(grid[i][j] == 1) {
-                    paintSquare(panel, (uSize)*j, (uSize)*i, w, 1);
+                    paintSquare(panel, (uSize)*j, (uSize)*i, cellWidth, 1);
                 }
             }
         }
@@ -74,12 +77,7 @@ public class Life {
         int sum = 0;
         for (int i = 0; i< rows; i++) {
             for (int j=0; j<cols; j++) {
-                if(i==0 || i== rows -1 || j==0 || j==cols-1) {
-                    sum = neighboursBorder(gridOld, i, j);
-                }
-                else {
-                    sum = neighbours(gridOld, i ,j);
-                }
+                sum = countNeighbours(gridOld, i, j);
                 if(sum==3) {
                     gridNew[i][j] = 1;
                 }
@@ -91,50 +89,17 @@ public class Life {
                 }
             }
         }
-//		print(gridNew);
         drawFrame(gridNew);
     }
 
     //counts neighbours of inside fields
-    int neighbours(int[][]grid, int i, int j) {
+    int countNeighbours(int[][]grid, int i, int j) {
         int sum=0;
-        sum += grid[i-1][j-1];
-        sum += grid[i-1][j];
-        sum += grid[i-1][j+1];
-        sum += grid[i][j-1];
-        sum += grid[i][j+1];
-        sum += grid[i+1][j-1];
-        sum += grid[i+1][j];
-        sum += grid[i+1][j+1];
-        return sum;
-    }
-
-    //counts neighbours of border fields
-    int neighboursBorder(int[][]grid, int i, int j) {
-        int sum=0;
-        if(i>0) {
-            sum += grid[i-1][j];
-            if(j>0) {
-                sum += grid[i-1][j-1];
+        for (int x=-1; x<=1; x++) {
+            for (int y=-1; y<=1; y++) {
+                if ((x==0&&y==0) || !withinBounds(grid, x+i, y+j)) { continue; }
+                sum += grid[x+i][y+j];
             }
-            if(j<cols-1) {
-                sum += grid[i-1][j+1];
-            }
-        }
-        if(i< rows -1) {
-            sum += grid[i+1][j];
-            if(j>0) {
-                sum += grid[i+1][j-1];
-            }
-            if(j<cols-1) {
-                sum += grid[i+1][j+1];
-            }
-        }
-        if(j>0) {
-            sum += grid[i][j-1];
-        }
-        if(j<cols-1) {
-            sum += grid[i][j+1];
         }
         return sum;
     }
@@ -143,7 +108,7 @@ public class Life {
     void drawFrame(int[][] grid) {
         for (int i = 0; i< rows; i++) {
             for (int j=0; j<cols; j++) {
-                paintSquare(panel, (uSize)*j, (uSize)*i, w, grid[i][j]);
+                paintSquare(panel, (uSize)*j, (uSize)*i, cellWidth, grid[i][j]);
             }
         }
     }
@@ -160,19 +125,12 @@ public class Life {
         g2D.fillRect(x, y, w, w);
     }
 
-    //print the grid in console
-    void print(int[][] grid) {
-        for (int i = 0; i< rows; i++) {
-            for (int j=0; j<cols; j++) {
-                System.out.print(grid[i][j]);
-            }
-            System.out.println();
-        }
-        System.out.println();
+    private boolean withinBounds(int[][] grid, int x, int y) {
+        return x >= 0 && y >= 0 && x < grid.length && y < grid[0].length;
     }
 
     //fill the grid with glider gun pattern
-    int[][] fillGliderGun(int[][] grid){
+    private void fillGliderGun(int[][] grid){
         String gun = "000000000000000000000000100000000000"
                    + "000000000000000000000010100000000000"
                    + "000000000000110000001100000000000011"
@@ -189,16 +147,14 @@ public class Life {
                 index++;
             }
         }
-        return grid;
     }
 
     //fill the grid with random 0 or 1
-    int[][] randomFill(int[][] grid){
+    private void randomFill(int[][] grid){
         for (int i = 0; i< rows; i++) {
             for (int j=0; j<cols; j++) {
                 grid[i][j] = random.nextInt(2);
             }
         }
-        return grid;
     }
 }

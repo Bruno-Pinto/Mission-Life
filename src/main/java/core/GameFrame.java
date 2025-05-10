@@ -12,8 +12,6 @@ public class GameFrame extends JFrame{
 		setResizable(false);
 		setTitle("A Game of Life");
 		setLocationRelativeTo(null);
-		setVisible(true);
-		
 	}
 	
 }
