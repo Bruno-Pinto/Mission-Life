@@ -4,10 +4,7 @@ import core.LifeLogger;
 import exceptions.InvalidFileFormatException;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class PatternLoader {
     private static final LifeLogger log = new LifeLogger(PatternLoader.class);
@@ -32,21 +29,32 @@ public class PatternLoader {
      */
     public static List<Pattern> loadPatternsWithType(PatternType patternType) {
         log.info("Loading all " + patternType.getName() + " patterns...");
-        File directory = new File(patternType.getPath());
-        if (!assertValidDirectory(directory)) {
-            log.warn("Path " + patternType.getPath() + " is not a directory");
-            return Collections.emptyList();
-        }
         ArrayList<Pattern> patterns = new ArrayList<>();
-        File[] files = directory.listFiles();
-        assert files != null;
-        for (File file : files) {
-            try {
-                Pattern pattern = createPattern(patternType, file);
-                patterns.add(pattern);
-            } catch (Exception e) {
-                log.error("Failed to load file", e);
+
+        try {
+            // Access the directory as a resource
+            String path = patternType.getPath();
+            var resource = PatternLoader.class.getResource(path);
+
+            if (resource == null) {
+                log.warn("Resource path " + path + " not found.");
+                return Collections.emptyList();
             }
+
+            // Load files within the resource path
+            File[] files = new File(Objects.requireNonNull(resource.toURI())).listFiles();
+            if (files == null) return patterns;
+
+            for (File file : files) {
+                try {
+                    Pattern pattern = createPattern(patternType, file);
+                    patterns.add(pattern);
+                } catch (Exception e) {
+                    log.error("Failed to load pattern from file: " + file.getName(), e);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error accessing resource path: " + patternType.getPath(), e);
         }
         return patterns;
     }
@@ -62,7 +70,7 @@ public class PatternLoader {
         if (grid.length == 0) {
             throw new IllegalArgumentException("Grid is empty for file: " + file.getName());
         }
-        return new Pattern(file.getName(), patternType, grid);
+        return new Pattern(file.getName().substring(0, file.getName().length()-4), patternType, grid);
     }
 
     /**
@@ -75,10 +83,14 @@ public class PatternLoader {
         try (Scanner scanner = new Scanner(file)) {
             int rows = scanner.nextInt();
             int columns = scanner.nextInt();
+            log.finer("Reading " + rows + " rows and " + columns + " columns...");
+            scanner.nextLine();
             byte[][] byteGrid = new byte[rows][columns];
             for (int row = 0; row < rows; row++) {
+                String line = scanner.nextLine();
                 for (int column = 0; column < columns; column++) {
-                    byteGrid[row][column] = scanner.nextByte();
+                    if (column >= line.length()) { byteGrid[row][column] = 0; }
+                    else { byteGrid[row][column] = (byte) ((byte) line.charAt(column)-48); }
                 }
             }
             return byteGrid;

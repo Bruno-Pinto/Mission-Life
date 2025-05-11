@@ -12,7 +12,7 @@ public class Pattern {
     private final int cols;
 
     public Pattern(String name, PatternType type, byte[][] grid) {
-        log.fine("Created pattern " + name + " with type" + type);
+        log.fine("Created pattern " + name + " with type " + type);
         this.name = name;
         this.type = type;
         this.grid = grid;

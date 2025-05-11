@@ -5,10 +5,10 @@ package patterns;
  */
 public enum PatternType {
 
-    STILL_LIFE("Still Life" , "patterns/still_life", "Still patterns that do not change."),
-    OSCILLATOR("Oscillator" , "patterns/oscillator", "Patterns that oscillate between two or more states."),
-    SPACESHIP("Spaceship" , "patterns/spaceship", "Patterns that move across the grid."),
-    GENERATOR("Generator" , "patterns/generator", "Patterns that generate other patterns.");
+    STILL_LIFE("Still Life" , "/patterns/still_life", "Still patterns that do not change."),
+    OSCILLATOR("Oscillator" , "/patterns/oscillator", "Patterns that oscillate between two or more states."),
+    SPACESHIP("Spaceship" , "/patterns/spaceship", "Patterns that move across the grid."),
+    GENERATOR("Generator" , "/patterns/generator", "Patterns that generate other patterns.");
 
     /**
      * The name of the pattern type.
