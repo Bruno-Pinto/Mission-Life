@@ -4,6 +4,7 @@ import patterns.Pattern;
 import user_interface.ConsoleInterface;
 import user_interface.UserInterface;
 
+import java.awt.*;
 import java.util.Random;
 
 public class Life {
@@ -133,13 +134,19 @@ public class Life {
 
     //draws the frame
     private void drawFrame() {
-        for (int i = 0; i< rows; i++) {
-            for (int j=0; j<cols; j++) {
-                if (grid1[i][j]!=grid2[i][j]) {
-                    panel.paintSquare((uSize)*j, (uSize)*i, grid2[i][j]);
+        double startTime = System.currentTimeMillis();
+        Graphics2D g2d = panel.getG2D();
+        synchronized (g2d) {
+            for (int i = 0; i < rows; i++) {
+                for (int j = 0; j < cols; j++) {
+                    if (grid1[i][j] != grid2[i][j]) {
+                        panel.paintSquare((uSize) * j, (uSize) * i, grid2[i][j]);
+                    }
                 }
             }
         }
+        double elapsedTime = System.currentTimeMillis() - startTime;
+        log.finest("Time to draw frame " + generation + " in milliseconds: " + elapsedTime);
     }
 
     private boolean withinBounds(byte[][] grid, int x, int y) {

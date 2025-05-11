@@ -16,9 +16,9 @@ public class GamePanel extends JPanel{
 	private final int gap;
 	private final int uSize;
 	private Graphics2D g2D;
-	private static final Color squareColor = Color.DARK_GRAY;
-	private static final Color gridColor = Color.LIGHT_GRAY;
-	private static final Color backgroundColor = Color.LIGHT_GRAY;
+	private static final Color squareColor = Color.CYAN;
+	private static final Color gridColor = Color.BLACK;
+	private static final Color backgroundColor = gridColor;
 	
 	GamePanel(int cols, int rows, int cellWidth, int gap) {
 		this.cols = cols;
@@ -34,6 +34,8 @@ public class GamePanel extends JPanel{
 	public void setG2D() {
 		g2D = (Graphics2D) this.getGraphics();
 	}
+
+	public Graphics2D getG2D() { return g2D; }
 
 	@Override
 	public void paint(Graphics g) {

@@ -10,6 +10,7 @@ import java.util.logging.*;
 public class LifeLogger {
     private final Logger log;
     private static final Level DEFAULT_LOG_LEVEL = Level.INFO;
+    private static final Level FINEST_LOG_LEVEL = Level.FINEST;
     private static final Level DEBUG_LOG_LEVEL = Level.FINER;
     private static final Level DEVELOPMENT_LOG_LEVEL = Level.INFO;
     private static final Level RELEASE_LOG_LEVEL = Level.WARNING;
@@ -56,12 +57,15 @@ public class LifeLogger {
     private Level getLogLevel() {
         String appMode = System.getProperty("appMode", "development");
         return switch (appMode.toLowerCase()) {
+            case "finest" -> FINEST_LOG_LEVEL;
             case "debug" -> DEBUG_LOG_LEVEL;
             case "development" -> DEVELOPMENT_LOG_LEVEL;
             case "release" -> RELEASE_LOG_LEVEL;
             default -> DEFAULT_LOG_LEVEL;
         };
     }
+
+    public void finest(String message) { log.finest(message); }
 
     /**
      * Log very detailed debugging information.
