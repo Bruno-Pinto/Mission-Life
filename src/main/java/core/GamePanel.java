@@ -17,8 +17,8 @@ public class GamePanel extends JPanel{
 	private final int uSize;
 	private Graphics2D g2D;
 	private static final Color squareColor = Color.DARK_GRAY;
-	private static final Color gridColor = Color.DARK_GRAY;
-	private static final Color backgroundColor = Color.WHITE;
+	private static final Color gridColor = Color.LIGHT_GRAY;
+	private static final Color backgroundColor = Color.LIGHT_GRAY;
 	
 	GamePanel(int cols, int rows, int cellWidth, int gap) {
 		this.cols = cols;
@@ -39,18 +39,22 @@ public class GamePanel extends JPanel{
 	public void paint(Graphics g) {
 		Graphics2D graphics2D = (Graphics2D) g;
 		int s = gap - gap/2;
+		graphics2D.setColor(backgroundColor);
+		graphics2D.fillRect(0, 0, panelWidth, panelHeight);
 		graphics2D.setStroke(new BasicStroke(gap));
 		graphics2D.setColor(gridColor);
-		for (int i = 1; i<cols; i++) {
-			graphics2D.drawLine(i*uSize - s, 0, i*uSize - s, panelHeight);
-		}
-		for (int i = 1; i<rows; i++) {
-			graphics2D.drawLine(0, i*uSize - s, panelWidth, i*uSize - s);
+		if (gap!=0) {
+			for (int i = 1; i<cols; i++) {
+				graphics2D.drawLine(i*uSize - s, 0, i*uSize - s, panelHeight);
+			}
+			for (int i = 1; i<rows; i++) {
+				graphics2D.drawLine(0, i*uSize - s, panelWidth, i*uSize - s);
+			}
 		}
 	}
 
-	public void paintSquare( int x, int y, int color) {
-		if (color == 1) {
+	public void paintSquare( int x, int y, int state) {
+		if (state == 1) {
 			g2D.setColor(squareColor);
 		} else {
 			g2D.setColor(backgroundColor);
