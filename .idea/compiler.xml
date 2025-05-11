@@ -4,6 +4,8 @@
     <bytecodeTargetLevel>
       <module name="Mission-Life.app.main" target="21" />
       <module name="Mission-Life.app.test" target="21" />
+      <module name="Mission-Life.main" target="21" />
+      <module name="Mission-Life.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

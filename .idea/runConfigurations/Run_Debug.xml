@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Debug" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="core.App" />
-    <module name="Mission-Life.main" />
+    <module name="Mission-Life" />
     <option name="VM_PARAMETERS" value="-DappMode=debug" />
     <method v="2">
       <option name="Make" enabled="true" />
