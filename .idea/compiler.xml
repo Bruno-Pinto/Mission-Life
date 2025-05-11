@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
-      <module name="Mission-Life.app.main" target="21" />
-      <module name="Mission-Life.app.test" target="21" />
-      <module name="Mission-Life.main" target="21" />
-      <module name="Mission-Life.test" target="21" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="24" />
   </component>
 </project>

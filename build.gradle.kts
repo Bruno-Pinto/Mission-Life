@@ -24,17 +24,18 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+    implementation("org.openjfx:javafx:24.0.1")
 }
 
 javafx {
-    version = "23.0.1"
+    version = "24.0.1"
     modules("javafx.controls", "javafx.fxml")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(24)
     }
 }
 
@@ -43,9 +44,22 @@ application {
     mainClass = "core.App"
 }
 
+sourceSets {
+    main {
+        java.srcDir("src/main/java")
+        resources.srcDir("src/main/resources")
+    }
+}
+
+
+
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.named<ProcessResources>("processResources") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.withType<JavaExec>() {
