@@ -13,3 +13,9 @@
     -fx-font-weight: bold;
     -fx-font-size: 16;
 }
+
+.primaryButton:hover, .primaryButton:pressed  {
+    -fx-background-color: linear-gradient(to top,rgba(0, 35, 100, 1) 0%, rgba(20, 100, 220, 1) 100%);
+    -fx-cursor: hand;
+    -fx-background-insets: 5;
+}
