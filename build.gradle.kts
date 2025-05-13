@@ -29,7 +29,7 @@ dependencies {
 
 javafx {
     version = "24.0.1"
-    modules("javafx.controls", "javafx.fxml")
+    modules("javafx.controls", "javafx.fxml", "javafx.graphics")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

@@ -27,20 +27,34 @@ public class LifeLogger {
             handler.setFormatter(new Formatter() {
                 @Override
                 public String format(LogRecord logRecord) {
-                    // Extract only the last two segments
+                    // Extract only the last segment of the logger name
                     String[] pathSegments = logRecord.getLoggerName().split("\\.");
                     String relativePath = pathSegments.length >= 1
                             ? pathSegments[pathSegments.length - 1]
                             : logRecord.getLoggerName();
 
+                    // Format the timestamp
                     String time = new java.text.SimpleDateFormat("HH:mm:ss.SSS")
                             .format(new java.util.Date(logRecord.getMillis()));
 
-                    return String.format("[%s] [%s] %s: %s%n",
+                    // Construct the main log message
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(String.format("[%s] [%s] %s: %s%n",
                             time,
                             logRecord.getLevel(),
                             relativePath,
-                            logRecord.getMessage());
+                            logRecord.getMessage()));
+
+                    // Handle throwable if present
+                    Throwable throwable = logRecord.getThrown();
+                    if (throwable != null) {
+                        sb.append(throwable.toString()).append("\n");
+                        for (StackTraceElement element : throwable.getStackTrace()) {
+                            sb.append("\tat ").append(element.toString()).append("\n");
+                        }
+                    }
+
+                    return sb.toString();
                 }
             });
             handler.setLevel(level);
@@ -65,6 +79,18 @@ public class LifeLogger {
         };
     }
 
+    public void logInitialize(Class<?> clazz) {
+        info("Initializing " + clazz.getName());
+    }
+
+    public void logFinishedInitialize(Class<?> clazz) {
+        info("Finished initializing " + clazz.getName());
+    }
+
+    /**
+     * Log even more detailed debugging information.
+     * @param message The message to log.
+     */
     public void finest(String message) { log.finest(message); }
 
     /**

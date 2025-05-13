@@ -1,10 +1,11 @@
 package core;
 
 import patterns.Pattern;
-import user_interface.ConsoleInterface;
-import user_interface.UserInterface;
+import patterns.PatternLoader;
+import patterns.PatternType;
+import user_interface.controllers.LifeListener;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Life {
@@ -12,66 +13,64 @@ public class Life {
     private static final Random random = new Random();
     private static final long START_TIME = System.currentTimeMillis();
 
-    private static final double SCALE = 1;
-    private final int rows = (int) (270* SCALE); // 15x36 for Glider
-    private final int cols = (int) (500* SCALE);
-    private final int cellSize = (int) (4/ SCALE); // width of square
-    private final int gap = 1; // gap between squares
-    private final int uSize = cellSize + gap;
-    private final long delay = 50;
-    private byte[][] grid1 = new byte[rows][cols];
-    private byte[][] grid2 = new byte[rows][cols];
+    private byte[][] oldGrid;
+    private byte[][] newGrid;
 
     private final LifeLogger log = new LifeLogger(Life.class);
-    private final UserInterface userInterface;
-    private final GamePanel panel;
-    private final GameFrame frame;
+    private final ArrayList<LifeListener> listeners = new ArrayList<>();
 
+    private GameState state;
     private long lastGenerationTime = START_TIME;
     private long generation;
     private boolean running = true;
     private boolean restart = false;
-    private GameMode gameMode;
 
-    public Life() {
-        panel = new GamePanel(cols, rows, cellSize, gap);
-        frame = new GameFrame(this, panel);
-        panel.setG2D();
-        userInterface = new ConsoleInterface();
+    public Life(GameState state) {
+        this.state = state;
     }
 
     public void initialize() {
         log.info("Initializing Life");
+        log.fine("Grid: " + state.getRows() + "x" + state.getCols() + " cell size: " + state.getCellSize() + " gap: " + state.getGap());
+        this.oldGrid = new byte[this.state.getRows()][this.state.getCols()];
+        this.newGrid = new byte[this.state.getRows()][this.state.getCols()];
         generation = 0;
-        frame.setVisible(true);
-//        gameMode = userInterface.getGameMode();
-        gameMode = GameMode.RANDOM;
-        if (gameMode == GameMode.RANDOM) {
-            randomFill(grid1);
-//            fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).get(3));
-//            fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).getFirst());
-//            fillPatternCenterRight(PatternLoader.loadPatternsWithType(PatternType.SPACESHIP).get(3));
-//            fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.GENERATOR).get(2));
+//        randomFill(grid1);
+//        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).get(3));
+//        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).getFirst());
+        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.SPACESHIP).getLast());
+//        fillPatternCenterLeft(PatternLoader.loadPatternsWithType(PatternType.GENERATOR).get(0));
 
-        } else {
-        }
         running = true;
         log.info("Finished Initializing Life, starting game");
         run();
+    }
+
+    public void addListener(LifeListener l) {
+        listeners.add(l);
+    }
+    public GameState getState() { return state; }
+    public void setState(GameState state) {
+        this.state = state;
+    }
+
+    private void notifyListeners(byte[][] oldGrid, byte[][] newGrid) {
+        for (LifeListener l : listeners) {
+            l.onGridUpdate(oldGrid, newGrid);
+        }
     }
 
     /**
      * Stops life
      */
     public void stop() {
+        log.info("Stopping Life");
         running = false;
-        frame.dispose();
     }
 
     public void restart() {
-        grid1 = new byte[rows][cols];
-        grid2 = new byte[rows][cols];
-        panel.repaint();
+        oldGrid = new byte[state.getRows()][state.getCols()];
+        newGrid = new byte[state.getRows()][state.getCols()];
         restart = true;
         running = false;
     }
@@ -80,27 +79,25 @@ public class Life {
     private void run() {
         while (running) {
             int sum = 0;
-            for (int i = 0; i<rows; i++) {
-                for (int j=0; j<cols; j++) {
-                    sum = countNeighbours(grid1, i, j);
-                    if(sum==3 || (sum==2 && grid1[i][j]==1)) {
-                        grid2[i][j] = 1;
+            for (int i = 0; i<state.getRows(); i++) {
+                for (int j=0; j<state.getCols(); j++) {
+                    sum = countNeighbours(oldGrid, i, j);
+                    if(sum==3 || (sum==2 && oldGrid[i][j]==1)) {
+                        newGrid[i][j] = 1;
                     }
                 }
             }
-            drawFrame();
             generation++;
             if (generation % 100 == 0) {
-                log.finer("Generation " + generation + " took " + (System.currentTimeMillis() - lastGenerationTime) + " milliseconds");
+                long generationTime = System.currentTimeMillis() - lastGenerationTime;
+                log.finer("Generation " + generation + " took " + generationTime + " milliseconds = " + Math.floor(100.0 * (1000.0/generationTime)));
                 lastGenerationTime = System.currentTimeMillis();
             }
-            if (generation % 5000 == 0) {
-                restart();
-            }
-            grid1 = grid2;
-            grid2 = new byte[rows][cols];
+            notifyListeners(oldGrid, newGrid);
+            oldGrid = newGrid;
+            newGrid = new byte[state.getRows()][state.getCols()];
             try {
-                Thread.sleep(delay);
+                Thread.sleep(state.getDelay());
             } catch (InterruptedException e) {
                 log.error("Thread interrupted", e);
                 running = false;
@@ -109,7 +106,7 @@ public class Life {
         if (restart) {
             restart = false;
             running = true;
-            log.finer("Restarting Life");
+            log.fine("Restarting Life");
             initialize();
         }
     }
@@ -132,67 +129,24 @@ public class Life {
         return sum;
     }
 
-    //draws the frame
-    private void drawFrame() {
-        double startTime = System.currentTimeMillis();
-        Graphics2D g2d = panel.getG2D();
-        synchronized (g2d) {
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    if (grid1[i][j] != grid2[i][j]) {
-                        panel.paintSquare((uSize) * j, (uSize) * i, grid2[i][j]);
-                    }
-                }
-            }
-        }
-        double elapsedTime = System.currentTimeMillis() - startTime;
-        log.finest("Time to draw frame " + generation + " in milliseconds: " + elapsedTime);
-    }
-
     private boolean withinBounds(byte[][] grid, int x, int y) {
         return x >= 0 && y >= 0 && x < grid.length && y < grid[0].length;
-    }
-
-    private void fillPatternTopLeft(Pattern pattern) {
-        log.fine("Filling pattern " + pattern.getName());
-        byte[][] grid = pattern.getGrid();
-        for (int i=0; i<grid.length; i++) {
-            System.arraycopy(grid[i], 0, grid1[i], 0, grid[i].length);
-        }
-    }
-
-    private void fillPatternCenterLeft(Pattern pattern) {
-        log.fine("Filling pattern " + pattern.getName());
-        byte[][] grid = pattern.getGrid();
-        int startX = (rows-grid.length)/2;
-        for (int i=0; i<grid.length; i++) {
-            System.arraycopy(grid[i], 0, grid1[i+startX], 10, grid[i].length);
-        }
-    }
-
-    private void fillPatternCenterRight(Pattern pattern) {
-        log.fine("Filling pattern " + pattern.getName());
-        byte[][] grid = pattern.getGrid();
-        int startX = (rows-grid.length)/2;
-        int startY = grid1[0].length-grid[0].length-10;
-        for (int i=0; i<grid.length; i++) {
-            System.arraycopy(grid[i], 0, grid1[i+startX], startY, grid[i].length);
-        }
     }
 
     private void fillPatternCenter(Pattern pattern) {
         log.fine("Filling pattern " + pattern.getName());
         byte[][] grid = pattern.getGrid();
-        int startX = (rows-grid.length)/2;
-        int startY = (cols-grid[0].length)/2;
+        int startX = (oldGrid.length-grid.length)/2;
+        int startY = (oldGrid[0].length-grid[0].length)/2;
+        log.finer("Filling pattern at " + startX + "," + startY);
         for (int i=0; i<grid.length; i++) {
-            System.arraycopy(grid[i], 0, grid1[i+startX], startY, grid[i].length);
+            System.arraycopy(grid[i], 0, oldGrid[i+startX], startY, grid[i].length);
         }
     }
 
     private void randomFill(byte[][] grid){
-        for (int i = 0; i< rows; i++) {
-            for (int j=0; j<cols; j++) {
+        for (int i = 0; i<state.getRows(); i++) {
+            for (int j=0; j<state.getCols(); j++) {
                 grid[i][j] = (byte) (random.nextInt(2)%2);
             }
         }
