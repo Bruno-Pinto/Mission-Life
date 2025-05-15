@@ -134,4 +134,10 @@ public class GameState {
     public GameState createSettingState() {
         return new GameState(rows, cols, cellSize, gap, delay);
     }
+
+    public GameState copy() {
+        GameState newState = new GameState(rows, cols, cellSize, gap, delay, generation, grid);
+        newState.setScale(scale);
+        return newState;
+    }
 }

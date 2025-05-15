@@ -11,28 +11,40 @@ public class LifeCanvas extends Canvas {
     private final Paint squareColor = Paint.valueOf("darkgray");
     private final LifeLogger log;
 
+    /**
+     * Constructor for the LifeCanvas class.
+     */
     public LifeCanvas() {
         super();
         log = new LifeLogger(LifeCanvas.class);
     }
 
+    /**
+     * Initializes the LifeCanvas with the given GameState.
+     * Sets the width and height of the canvas based on the GameState.
+     *
+     * @param gameState The GameState to initialize the canvas with
+     */
     public void initialize(GameState gameState) {
         log.logInitialize(LifeCanvas.class);
         this.gameState = gameState;
         setWidth(gameState.getCols() * (gameState.getCellSize() + gameState.getGap()));
         setHeight(gameState.getRows() * (gameState.getCellSize() + gameState.getGap()));
-        log.logInitialize(LifeCanvas.class);
+        paint();
+        log.logFinishedInitialize(LifeCanvas.class);
     }
 
     public void updateGameState(GameState gameState) { this.gameState = gameState; }
 
     public boolean rescale(double scale) {
         log.finer("Rescaling canvas");
-        gameState.setScale(scale);
-        double width = gameState.getCols() * (gameState.getCellSize() + gameState.getGap());
-        double height = gameState.getRows() * (gameState.getCellSize() + gameState.getGap());
+        GameState tempGameState = gameState.copy(); //Defer setting scale on actual gameState by using a copy to check dimensions
+        tempGameState.setScale(scale);
+        double width = tempGameState.getCols() * (tempGameState.getCellSize() + tempGameState.getGap());
+        double height = tempGameState.getRows() * (tempGameState.getCellSize() + tempGameState.getGap());
 
         if (width <= 5000 && height <= 5000) {
+            gameState.setScale(scale);
             setWidth(width);
             setHeight(height);
             paint();

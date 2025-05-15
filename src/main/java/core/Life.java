@@ -101,6 +101,7 @@ public class Life {
             } catch (InterruptedException e) {
                 log.error("Thread interrupted", e);
                 running = false;
+                Thread.currentThread().interrupt();
             }
         }
         if (restart) {
