@@ -53,12 +53,13 @@ public class GameController implements Controller, LifeListener {
      * Calculates the maximum and minimum scales for the canvas based on the current size of the canvas and scroll pane.
      */
     private void calculateScales() {
-        double maxHScale = 5000.0 / lifeCanvas.getWidth();
-        double maxVScale = 5000.0 / lifeCanvas.getHeight();
+        double maxHScale = 5000.0 / scrollPane.getWidth();
+        double maxVScale = 5000.0 / scrollPane.getHeight();
         maxScale = Math.min(maxHScale, maxVScale);
         double minHScale = scrollPane.getWidth() / lifeCanvas.getWidth();
         double minVScale = scrollPane.getHeight() / lifeCanvas.getHeight();
         minScale = Math.max(minHScale, minVScale);
+        log.finer("Max scale: " + maxScale + " Min scale: " + minScale);
     }
 
     /**
@@ -70,14 +71,21 @@ public class GameController implements Controller, LifeListener {
         scrollPane.viewportBoundsProperty().addListener((_, _, _) -> onMapMove());
         lifeCanvas.addEventHandler(ScrollEvent.SCROLL, (ScrollEvent event) -> {
             log.finest("Scroll event: " + event.getDeltaY());
-            scale += event.getDeltaY()/200;
-            if (scale <= maxScale && scale >= minScale) {
-                scaleLifeCanvas(event.getDeltaY()/200);
-                onMapMove();
-            } else {
-                scale -= event.getDeltaY()/200;
-                log.finer("Max scale reached");
+            double scaleDelta = event.getDeltaY()/200;
+            if ((scale == minScale && scaleDelta <= 0) || (scale == maxScale && scaleDelta >= 0)) {
+                log.finest("Scale is at min or max, not scaling");
+                return;
             }
+            scale += scaleDelta;
+            if (scale > maxScale) {
+                scale = maxScale;
+                log.finest("Max scale reached");
+            } else if (scale < minScale) {
+                scale = minScale;
+                log.finest("Min scale reached");
+            }
+            scaleLifeCanvas(scaleDelta);
+            onMapMove();
             event.consume();
         });
     }
