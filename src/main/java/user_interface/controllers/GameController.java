@@ -112,21 +112,21 @@ public class GameController implements Controller, LifeListener {
         debounce(()-> {
             log.finer("Moving map focus");
             double fullWidth = mapPane.getWidth();
+            double hRatio = lifeCanvas.getWidth() / scrollPane.getWidth();
+            mapFocus.setMinWidth(fullWidth/hRatio);
+            mapFocus.setPrefWidth(fullWidth/hRatio);
+            mapFocus.setMaxWidth(fullWidth/hRatio);
             double fullHeight = mapPane.getHeight();
             double vRatio = lifeCanvas.getHeight() / scrollPane.getHeight();
-            double hRatio = lifeCanvas.getWidth() / scrollPane.getWidth();
+            mapFocus.setMinHeight(fullHeight/vRatio);
+            mapFocus.setPrefHeight(fullHeight/vRatio);
+            mapFocus.setMaxHeight(fullHeight/vRatio);
             log.finest("vRatio: " + vRatio + " hRatio: " + hRatio);
-            mapFocus.setMinWidth(scrollPane.getWidth()/4/hRatio);
-            mapFocus.setPrefWidth(scrollPane.getWidth()/4/hRatio);
-            mapFocus.setMaxWidth(scrollPane.getWidth()/4/hRatio);
-            mapFocus.setMinHeight(scrollPane.getHeight()/4/vRatio);
-            mapFocus.setPrefHeight(scrollPane.getHeight()/4/vRatio);
-            mapFocus.setMaxHeight(scrollPane.getHeight()/4/vRatio);
 
-            double vBounds = -lifeCanvas.getWidth()/scrollPane.getViewportBounds().getMinX();
-            double hBounds = -lifeCanvas.getHeight()/scrollPane.getViewportBounds().getMinY();
-            mapFocus.setLayoutX(scrollPane.getWidth()/4/vBounds);
-            mapFocus.setLayoutY(scrollPane.getHeight()/4/hBounds);
+            double xBounds = -lifeCanvas.getWidth()/scrollPane.getViewportBounds().getMinX();
+            double yBounds = -lifeCanvas.getHeight()/scrollPane.getViewportBounds().getMinY();
+            mapFocus.setLayoutX(mapPane.getWidth()/xBounds);
+            mapFocus.setLayoutY(mapPane.getHeight()/yBounds);
             movingMap = false;
             log.finest("MapFocus size: " + mapFocus.getWidth() + "x" + mapFocus.getHeight());
             log.finest("X: " + mapFocus.getLayoutX() + " Y: " + mapFocus.getLayoutY());
