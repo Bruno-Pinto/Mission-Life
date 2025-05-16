@@ -38,8 +38,8 @@ public class Life {
 //        randomFill(grid1);
 //        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).get(3));
 //        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.OSCILLATOR).getFirst());
-        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.SPACESHIP).getLast());
-//        fillPatternCenterLeft(PatternLoader.loadPatternsWithType(PatternType.GENERATOR).get(0));
+//        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.SPACESHIP).getLast());
+        fillPatternCenter(PatternLoader.loadPatternsWithType(PatternType.GENERATOR).get(2));
 
         running = true;
         log.info("Finished Initializing Life, starting game");

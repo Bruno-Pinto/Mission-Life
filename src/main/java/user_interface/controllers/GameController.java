@@ -11,6 +11,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
+import static utils.MathUtils.*;
+
 public class GameController implements Controller, LifeListener {
     private final LifeLogger log;
     private ViewLoader viewLoader;
@@ -18,6 +20,7 @@ public class GameController implements Controller, LifeListener {
     private double scale = 1.0;
     private double maxScale = 100.0;
     private double minScale = 0.0;
+    private boolean rescaled = true;
 
     @FXML
     private AnchorPane anchorPane;
@@ -53,8 +56,8 @@ public class GameController implements Controller, LifeListener {
      * Calculates the maximum and minimum scales for the canvas based on the current size of the canvas and scroll pane.
      */
     private void calculateScales() {
-        double maxHScale = 5000.0 / scrollPane.getWidth();
-        double maxVScale = 5000.0 / scrollPane.getHeight();
+        double maxHScale = 5000.0 / lifeCanvas.getWidth();
+        double maxVScale = 5000.0 / lifeCanvas.getHeight();
         maxScale = Math.min(maxHScale, maxVScale);
         double minHScale = scrollPane.getWidth() / lifeCanvas.getWidth();
         double minVScale = scrollPane.getHeight() / lifeCanvas.getHeight();
@@ -70,23 +73,26 @@ public class GameController implements Controller, LifeListener {
         anchorPane.heightProperty().addListener((_, _, _) -> onWindowResize());
         scrollPane.viewportBoundsProperty().addListener((_, _, _) -> onMapMove());
         lifeCanvas.addEventHandler(ScrollEvent.SCROLL, (ScrollEvent event) -> {
-            log.finest("Scroll event: " + event.getDeltaY());
-            double scaleDelta = event.getDeltaY()/200;
-            if ((scale == minScale && scaleDelta <= 0) || (scale == maxScale && scaleDelta >= 0)) {
-                log.finest("Scale is at min or max, not scaling");
-                return;
-            }
-            scale += scaleDelta;
-            if (scale > maxScale) {
-                scale = maxScale;
-                log.finest("Max scale reached");
-            } else if (scale < minScale) {
-                scale = minScale;
-                log.finest("Min scale reached");
-            }
-            scaleLifeCanvas(scaleDelta);
-            onMapMove();
-            event.consume();
+            debounce(() -> {
+                double scaleDelta = roundToDecimal(event.getDeltaY()/200, 1);
+                log.finest("Scale delta: " + scaleDelta);
+                if ((scale == minScale && scaleDelta <= 0) || (scale == maxScale && scaleDelta >= 0)) {
+                    log.finest("Scale is at min or max, not scaling");
+                    event.consume();
+                    return;
+                }
+                scale = roundToDecimal(scale+scaleDelta, 1);
+                if (scale > maxScale) {
+                    scale = maxScale;
+                    log.finest("Max scale reached");
+                } else if (scale < minScale) {
+                    scale = minScale;
+                    log.finest("Min scale reached");
+                }
+                scaleLifeCanvas();
+                onMapMove();
+                event.consume();
+            }, 100);
         });
     }
 
@@ -107,7 +113,12 @@ public class GameController implements Controller, LifeListener {
 
     @Override
     public void onGridUpdate(byte[][] oldGrid, byte[][] newGrid) {
-        lifeCanvas.drawFrame(oldGrid, newGrid);
+        if (rescaled) {
+            lifeCanvas.repaint(newGrid);
+            rescaled = false;
+        } else {
+            lifeCanvas.drawFrame(oldGrid, newGrid);
+        }
     }
 
     private boolean movingMap = false;
@@ -156,9 +167,8 @@ public class GameController implements Controller, LifeListener {
 
     /**
      * Scales the life canvas based on the given delta Y value.
-     * @param lastDeltaY the last delta Y value from the scroll event
      */
-    private void scaleLifeCanvas(double lastDeltaY) {
+    private void scaleLifeCanvas() {
         log.finer("Scaling canvas to: " + scale);
         log.finest("Viewport bounds before: " + scrollPane.getHvalue() + "x" + scrollPane.getVvalue());
         double hValue = scrollPane.getHvalue();
@@ -166,11 +176,10 @@ public class GameController implements Controller, LifeListener {
         boolean success = lifeCanvas.rescale(scale);
         if (!success) {
             log.warn("Canvas scale failed");
-            maxScale = scale - lastDeltaY/200;
-            scale = maxScale;
         } else {
             scrollPane.setHvalue(hValue);
             scrollPane.setVvalue(vValue);
+            rescaled = true;
             log.finest("Viewport bounds after: " + scrollPane.getHvalue() + "x" + scrollPane.getVvalue());
         }
         log.finer("Finished scaling canvas");

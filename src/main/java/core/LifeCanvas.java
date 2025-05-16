@@ -43,17 +43,18 @@ public class LifeCanvas extends Canvas {
         double width = tempGameState.getCols() * (tempGameState.getCellSize() + tempGameState.getGap());
         double height = tempGameState.getRows() * (tempGameState.getCellSize() + tempGameState.getGap());
 
-        if (width <= 5000 && height <= 5000) {
+        if (width <= 5000 && height <= 5000 && width > 0 && height > 0) {
             gameState.setScale(scale);
             setWidth(width);
             setHeight(height);
-            paint();
+
             log.finer("Rescaled canvas to: " + getWidth() + "x" + getHeight());
             return true;
         } else {
             log.error("Rescale resulted in invalid dimensions: " + width + "x" + height);
             return false;
         }
+
     }
 
     /**
@@ -63,23 +64,31 @@ public class LifeCanvas extends Canvas {
         log.finer("Painting canvas");
         log.finest("Painting with Canvas size: " + getWidth() + "x" + getHeight());
         GraphicsContext graphics2D = getGraphicsContext2D();
+        graphics2D.setImageSmoothing(false);
         double gap = gameState.getGap();
         double uSize = gameState.getCellSize() + gap;
         int cols = gameState.getCols();
         int rows = gameState.getRows();
+        log.finest("Gap: " + gap + " Cell size: " + gameState.getCellSize() + " Unit size: " + uSize);
         graphics2D.setFill(backgroundColor);
         graphics2D.fillRect(0, 0, getWidth(), getHeight());
         graphics2D.setLineWidth(gap);
         graphics2D.setStroke(gridColor);
         if (gap!=0) {
             for (int i = 1; i<cols; i++) {
-                graphics2D.strokeLine(i*uSize, 0, i*uSize,getHeight());
+                graphics2D.strokeLine(i*uSize + gap/2, 0, i*uSize + gap/2,getHeight());
             }
             for (int i = 1; i<rows; i++) {
-                graphics2D.strokeLine(0, i*uSize, getWidth(), i*uSize);
+                graphics2D.strokeLine(0, i*uSize + gap/2, getWidth(), i*uSize + gap/2);
             }
         }
+        drawFrame(new byte[rows][cols]);
         log.finer("Finished painting canvas");
+    }
+
+    public void repaint(byte[][] grid) {
+        paint();
+        drawFrame(new byte[gameState.getRows()][gameState.getCols()], grid);
     }
 
     /**
@@ -88,15 +97,30 @@ public class LifeCanvas extends Canvas {
      * @param newGrid The new grid comparing with
      */
     public void drawFrame(byte[][] oldGrid, byte[][] newGrid) {
-        log.finest("Drawing frame");
         double cellSize = gameState.getCellSize();
         double gap = gameState.getGap();
         double unitSize = gameState.getUnitSize();
         for (int row = 0; row < newGrid.length; row++) {
             for (int column = 0; column < newGrid[row].length; column++) {
                 if (oldGrid[row][column] != newGrid[row][column]) {
-                    paintSquare(column*unitSize + gap/2, row*unitSize + gap/2, newGrid[row][column], cellSize);
+                    paintSquare(column*unitSize + gap, row*unitSize + gap, newGrid[row][column], cellSize);
                 }
+            }
+        }
+    }
+
+    /**
+     * Draws the current game frame completely.
+     * @param grid The grid
+     */
+    public void drawFrame(byte[][] grid) {
+        log.finest("Drawing frame");
+        double cellSize = gameState.getCellSize();
+        double gap = gameState.getGap();
+        double unitSize = gameState.getUnitSize();
+        for (int row = 0; row < grid.length; row++) {
+            for (int column = 0; column < grid[row].length; column++) {
+                paintSquare(column*unitSize + gap, row*unitSize + gap, grid[row][column], cellSize);
             }
         }
         log.finest("Finished drawing frame");
